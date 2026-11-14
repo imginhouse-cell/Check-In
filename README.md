@@ -7,9 +7,11 @@
 ## โครงสร้างไฟล์
 
 ```
-claude-ai-attendance/
+Check-In/
 ├── index.html              ← หน้าเว็บทั้งหมด (HTML + CSS + JS ในไฟล์เดียว)
 ├── config.js               ← ใส่ URL ของ Google Apps Script ที่นี่
+├── version.js              ← เลขเวอร์ชัน + รายการอัปเดตที่โชว์บนเว็บ
+├── CHANGELOG.md            ← บันทึกการอัปเดตแต่ละเวอร์ชัน
 ├── apps-script/
 │   ├── Code.gs             ← โค้ดหลังบ้าน วางใน Google Apps Script
 │   └── appsscript.json     ← ค่าตั้งของ Apps Script (ใช้กับ clasp ได้)
@@ -60,9 +62,17 @@ window.ATTENDANCE_CONFIG = {
    git push -u origin main
    ```
 3. ไปที่ **Settings → Pages** → Source: **Deploy from a branch** → Branch: **main** / **(root)** → Save
-4. รอ 1–2 นาที จะได้ลิงก์ `https://<ชื่อผู้ใช้>.github.io/claude-ai-attendance/` ส่งให้ผู้เรียนได้เลย
+4. รอ 1–2 นาที จะได้ลิงก์ส่งให้ผู้เรียน — เว็บของคลาสนี้อยู่ที่ **https://imginhouse-cell.github.io/Check-In/**
 
-> ใช้กับเซิร์ฟเวอร์อื่นก็ได้ แค่อัปโหลด `index.html` กับ `config.js` ไว้โฟลเดอร์เดียวกัน
+> ใช้กับเซิร์ฟเวอร์อื่นก็ได้ แค่อัปโหลด `index.html`, `config.js` และ `version.js` ไว้โฟลเดอร์เดียวกัน
+
+### 🏷️ การขึ้นเวอร์ชันใหม่
+เลขเวอร์ชันโชว์บนส่วนหัวเว็บ (ป้าย `v1.2.0`) และท้ายเว็บ แตะเพื่อดูรายการอัปเดตและ commit ล่าสุดจาก GitHub
+ทุกครั้งที่แก้เว็บแล้วจะปล่อยของใหม่:
+1. เปิด `version.js` → เปลี่ยน `version` และ `date` แล้วเพิ่มรายการใหม่ไว้บนสุดของ `changelog`
+   - แก้บั๊ก → `1.2.0 → 1.2.1` · เพิ่มความสามารถ → `1.2.1 → 1.3.0` · เปลี่ยนใหญ่ → `2.0.0`
+2. เพิ่มหัวข้อเดียวกันใน `CHANGELOG.md`
+3. commit แล้ว push ขึ้น `main` — GitHub Pages จะอัปเดตเว็บเองภายใน 1–2 นาที
 
 ## ขั้นที่ 4 — นำเข้ารายชื่อผู้เรียน
 

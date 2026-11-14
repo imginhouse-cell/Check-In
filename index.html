@@ -252,6 +252,28 @@ a{color:#6d4fd0!important}
 @media(max-width:560px){.mascot-wrap{right:12px;top:118px;bottom:auto;width:92px}}
 @media (prefers-reduced-motion:reduce){.mascot{animation:none}}
 .success .mascot{width:96px;margin:0 auto 6px;animation:bob 2s ease-in-out infinite}
+
+/* ===== เวอร์ชัน ===== */
+button.pill.ver{cursor:pointer;font-weight:600;font-family:inherit;transition:transform .15s,background .15s}
+button.pill.ver:hover{transform:translateY(-1px);background:#fff}
+button.pill.ver .dot{width:7px;height:7px;border-radius:50%;background:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,.25)}
+.verlink{background:none;border:0;padding:0;color:#6d4fd0;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.vbox{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;background:var(--rb);margin-bottom:14px}
+.vbox .big{font-family:'Anuphan',sans-serif;font-size:28px;font-weight:700;line-height:1}
+.vbox .meta{font-size:13px;color:var(--ink);opacity:.85}
+.gh{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:16px}
+.gh svg{flex:none;margin-top:2px}
+.gh code{background:#f1eef8;padding:1px 6px;border-radius:6px;font-size:12.5px}
+.gh .m{color:var(--mute);font-size:12.5px}
+.rel{position:relative;padding:0 0 14px 22px;border-left:2px solid var(--line);margin-left:6px}
+.rel:last-child{border-left-color:transparent;padding-bottom:0}
+.rel::before{content:'';position:absolute;left:-7px;top:3px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #c4b5fd}
+.rel.cur::before{background:#a78bfa;border-color:#a78bfa}
+.rel h4{margin:0;font-family:'Anuphan',sans-serif;font-size:15.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rel h4 .tag{font-size:11.5px;font-weight:600;background:#ede9fe;color:#5b3fc4;padding:1px 8px;border-radius:999px}
+.rel .d{font-size:12.5px;color:var(--mute)}
+.rel ul{margin:6px 0 0;padding-left:18px;font-size:14px}
+.rel li{margin:2px 0}
 </style>
 </head>
 <body>
@@ -299,6 +321,7 @@ a{color:#6d4fd0!important}
       <span class="pill" id="pillStart">🕘 เริ่มเรียน 09:00 น.</span>
       <span class="pill" id="pillDate">📅 วันนี้</span>
       <span class="pill" id="pillMode">● กำลังเชื่อมต่อ…</span>
+      <button type="button" class="pill ver" id="pillVer" aria-label="ดูเวอร์ชันและสิ่งที่อัปเดต"><span class="dot"></span><span id="verText">v–</span></button>
     </div>
   </header>
 
@@ -329,13 +352,14 @@ a{color:#6d4fd0!important}
 
   <div class="sec-h"><h2 id="listTitle">รายชื่อผู้เข้าเรียน</h2><span id="listCount"></span></div>
   <main id="list" class="list"></main>
-  <footer>แตะที่ชื่อของคุณ → เซ็นชื่อ → กด “ยืนยันเข้าเรียน” · เวลาอ้างอิงประเทศไทย (UTC+7)</footer>
+  <footer>แตะที่ชื่อของคุณ → เซ็นชื่อ → กด “ยืนยันเข้าเรียน” · เวลาอ้างอิงประเทศไทย (UTC+7)<br><span id="footVer"></span></footer>
 </div>
 
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
 
 <script src="config.js"></script>
+<script src="version.js"></script>
 <script>
 (()=>{
 'use strict';
@@ -474,7 +498,39 @@ function errMsg(e){
 }
 
 /* ---------------- init ---------------- */
+/* ===== เวอร์ชัน & GitHub ===== */
+const APPV=window.APP_VERSION||{version:'dev',date:'',changelog:[],repo:''};
+const thDate=d=>{if(!d)return'';const x=new Date(d.length===10?d+'T12:00:00+07:00':d);return isNaN(x)?d:x.toLocaleDateString('th-TH',{timeZone:TZ,day:'numeric',month:'short',year:'numeric'})};
+const escV=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let ghCache=null;
+function ghLatest(){
+  if(ghCache)return ghCache;
+  if(!APPV.repo)return Promise.resolve(null);
+  ghCache=fetch(`https://api.github.com/repos/${APPV.repo}/commits?per_page=1`,{headers:{Accept:'application/vnd.github+json'}})
+    .then(r=>r.ok?r.json():null).then(a=>{const c=a&&a[0];return c?{sha:c.sha.slice(0,7),url:c.html_url,msg:(c.commit.message||'').split('\n')[0],date:c.commit.committer.date}:null})
+    .catch(()=>null);
+  return ghCache;
+}
+const GH_ICON='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17 4.9 18 5.2 18 5.2c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5z"/></svg>';
+function setupVersion(){
+  $('#verText').textContent='v'+APPV.version;
+  const repoUrl=APPV.repo?`https://github.com/${APPV.repo}`:'';
+  $('#footVer').innerHTML=`<button type="button" class="verlink" id="footVerBtn">เวอร์ชัน ${escV(APPV.version)}</button> · อัปเดต ${escV(thDate(APPV.date))}`+(repoUrl?` · <a href="${repoUrl}" target="_blank" rel="noopener">GitHub</a>`:'');
+  $('#pillVer').onclick=showVersion;$('#footVerBtn').onclick=showVersion;
+}
+function showVersion(){
+  const repoUrl=APPV.repo?`https://github.com/${APPV.repo}`:'';
+  const rels=(APPV.changelog||[]).map((r,i)=>`<div class="rel${i===0?' cur':''}"><h4>v${escV(r.version)} ${r.title?`· ${escV(r.title)}`:''}${i===0?'<span class="tag">ปัจจุบัน</span>':''}</h4><div class="d">${escV(thDate(r.date))}</div><ul>${(r.items||[]).map(t=>`<li>${escV(t)}</li>`).join('')}</ul></div>`).join('');
+  openModal(head('','มีอะไรใหม่','ประวัติการพัฒนาเว็บเช็คชื่อ')+`<div class="sh-body">
+    <div class="vbox"><div class="big">v${escV(APPV.version)}</div><div class="meta">เวอร์ชันปัจจุบัน<br>ปล่อยเมื่อ ${escV(thDate(APPV.date))}</div></div>
+    ${repoUrl?`<div class="gh" id="ghBox">${GH_ICON}<div><a href="${repoUrl}" target="_blank" rel="noopener">${escV(APPV.repo)}</a><div class="m" id="ghInfo">กำลังโหลดการอัปเดตล่าสุดจาก GitHub…</div></div></div>`:''}
+    ${rels||'<p>ยังไม่มีบันทึกการอัปเดต</p>'}</div>`);
+  if(repoUrl)ghLatest().then(c=>{const el=$('#ghInfo');if(!el)return;
+    el.innerHTML=c?`อัปเดตล่าสุด <a href="${c.url}" target="_blank" rel="noopener"><code>${c.sha}</code></a> · ${escV(c.msg)}<br>${escV(new Date(c.date).toLocaleString('th-TH',{timeZone:TZ,dateStyle:'medium',timeStyle:'short'}))} น.`:'ดูประวัติการแก้ไขทั้งหมดได้ที่หน้า GitHub';});
+}
+
 async function init(){
+  setupVersion();
   $('#date').value=state.date;
   tick();setInterval(tick,1000);
   render();

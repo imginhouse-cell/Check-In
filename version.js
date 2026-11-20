@@ -9,10 +9,20 @@
  * แล้วเพิ่มรายการใหม่ไว้ "บนสุด" ของ changelog (และใน CHANGELOG.md)
  */
 window.APP_VERSION = {
-  version: '1.2.0',
-  date: '2026-11-14',
+  version: '1.3.0',
+  date: '2026-11-20',
   repo: 'imginhouse-cell/Check-In',
   changelog: [
+    {
+      version: '1.3.0',
+      date: '2026-11-20',
+      title: 'เชื่อม Google Sheet "ชีตระบบเช็คชื่อ"',
+      items: [
+        'บันทึกการเช็คชื่อลง Google Sheet อัตโนมัติ (แท็บ Data และ Attendance)',
+        'รายชื่อผู้เรียนดึงจากแท็บ Roster ในชีต แก้ในชีตได้เลย',
+        'รหัสผู้สอนเก็บใน Script Properties (ADMIN_KEY) ไม่อยู่ในโค้ด'
+      ]
+    },
     {
       version: '1.2.0',
       date: '2026-11-14',
